@@ -1,0 +1,25 @@
+<style>
+.prompt{
+    display: None;
+}
+canvas {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+</style>
+<script>
+MathJax.Hub.Config({
+    TeX: {
+        extensions: ["AMSmath.js"]
+    },
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ]
+    },
+    displayAlign: 'center',
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": 4}}
+    }
+});
+</script>
