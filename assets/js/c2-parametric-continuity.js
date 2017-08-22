@@ -1,1 +1,75 @@
-define(['js/twgl','js/2d-boilerplate','js/hermite'],function(a,b,c){'use strict';const d=Object.create(b);return d.ContinuityExample=function(a,b){this.Program(this.render,{element:a,id:b})},d.render=function(){this.renderCurves(),this.renderPoints()},d.geomConstraints=[[80,160,0,160],[180,120,-120,0],[160,240,160,0],[120,60,0,-120]],d.renderCurves=function(){const b=c.calculateCurve(this.geomConstraints.slice(0,2)),d=c.calculateCurve(this.geomConstraints.slice(2,4)),e={position:b.concat(d)},f=a.createBufferInfoFromArrays(this.gl,e);a.setBuffersAndAttributes(this.gl,this.programInfo,f),a.setUniforms(this.programInfo,{color:[1,0,0,1]}),a.drawBufferInfo(this.gl,f,this.gl.LINE_STRIP)},d.renderPoints=function(){const b={position:[this.geomConstraints[0][0],this.geomConstraints[1][0],0,this.geomConstraints[0][1],this.geomConstraints[1][1],0,this.geomConstraints[2][1],this.geomConstraints[3][1],0]},c=a.createBufferInfoFromArrays(this.gl,b);a.setBuffersAndAttributes(this.gl,this.programInfo,c),a.setUniforms(this.programInfo,{color:[0,0,1,1]}),a.drawBufferInfo(this.gl,c,this.gl.POINTS)},function(a,b){const c=Object.create(d);c.ContinuityExample(a,b),c.start()}});
+define(['js/twgl', 'js/2d-boilerplate', 'js/hermite'], function(twgl, Program, hermite) {
+    'use strict'
+
+    const ContinuityExample = Object.create(Program);
+
+    ContinuityExample.ContinuityExample = function ContinuityExample(element, id) {
+        this.Program(this.render, {
+            element,
+            id
+        });
+    };
+
+    ContinuityExample.render = function render() {
+        this.renderCurves();
+        this.renderPoints();
+    };
+    
+    ContinuityExample.geomConstraints = [
+        [80, 160.0, 0.0, 160.0],
+        [180, 120.0, -120.0, 0.0],
+
+        [160.0, 240, 160.0, 0.0],
+        [120.0, 60, 0.0, -120.0],
+    ];
+
+    ContinuityExample.renderCurves = function renderCurves() {
+        var uniforms = {
+            color: [ 1.0, 0.0, 0.0, 1.0 ]
+        };           
+        
+        const curve1 = hermite.calculateCurve(this.geomConstraints.slice(0, 2));
+        const curve2 = hermite.calculateCurve(this.geomConstraints.slice(2, 4));
+
+        const arrays = {
+            position: {
+                numComponents: 2,
+                data: curve1.concat(curve2)
+            }
+        };
+
+        const bufferInfo = twgl.createBufferInfoFromArrays(this.gl, arrays);
+
+        twgl.setBuffersAndAttributes(this.gl, this.programInfo, bufferInfo);
+        twgl.setUniforms(this.programInfo, uniforms);
+        twgl.drawBufferInfo(this.gl, bufferInfo, this.gl.LINE_STRIP);
+    };
+
+    ContinuityExample.renderPoints = function renderPoints() {
+        var uniforms = {
+            color: [ 0.0, 0.0, 1.0, 1.0 ]
+        };           
+
+        const arrays = {
+            position: [
+                this.geomConstraints[0][0], this.geomConstraints[1][0], 0,
+                this.geomConstraints[0][1], this.geomConstraints[1][1], 0,
+                this.geomConstraints[2][1], this.geomConstraints[3][1], 0
+            ]
+        };
+
+        const bufferInfo = twgl.createBufferInfoFromArrays(this.gl, arrays);
+
+        twgl.setBuffersAndAttributes(this.gl, this.programInfo, bufferInfo);
+        twgl.setUniforms(this.programInfo, uniforms);
+        twgl.drawBufferInfo(this.gl, bufferInfo, this.gl.POINTS);
+    };
+
+    return function setup(element, id) {
+        const example = Object.create(ContinuityExample);
+
+        example.ContinuityExample(element, id);
+
+        example.start();
+    }
+});
