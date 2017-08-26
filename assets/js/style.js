@@ -1,0 +1,1 @@
+define([],function(){'use strict';const a={red:[1,0,0,1],green:[1,0,0,1],blue:[1,0,0,1],black:[0,0,0,1],lightGray:[0.8,0.8,0.8,1],darkGray:[0.5,0.5,0.5,1]};return a.curve=a.black,a.semiCurve=a.darkGray,a.controlPoint=a.black,a.controlPolygon=a.lightGray,{colors:a}});

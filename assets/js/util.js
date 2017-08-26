@@ -1,0 +1,1 @@
+define(["js/sylvester"],function(){const a=(a)=>[].concat.apply([],a);return{flattenArray:a,line:function(a,b,c){const d=[];for(let e=0;1>e;e+=c){const c=a.multiply(1-e).add(b.multiply(e));d.push(c)}return d},toPositionArray:function(b){return a(b.map((a)=>a.elements))}}});

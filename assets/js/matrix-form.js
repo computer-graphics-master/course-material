@@ -1,0 +1,1 @@
+define(["js/sylvester"],function(a){"use strict";return function(b,c=0.01,d=[0,1]){const e=function(b){return Array.isArray(b[0])?a.$M(b):a.$M(b.map((a)=>a.elements)).transpose()};return function(f){const g=e(f),h=g.multiply(b),i=[];for(let b=d[0];b<=d[1]+c;b+=c){const c=a.$V([b*b*b,b*b,b,1]);i.push(h.multiply(c))}return i}}});
