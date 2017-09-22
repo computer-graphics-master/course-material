@@ -43,41 +43,37 @@ define(['js/sylvester', 'js/style', 'js/util', 'js/transformation-chain'], funct
         return b * Math.pow(u, i) * Math.pow(1.0 - u, n - i);
     }
     
-    const bezier = function bezier(u) {
+    const bezier = function bezier(u, v) {
         let ret = s.$V([0, 0, 0, 1]);
     
         for (let i = 0; i < 4; ++i)
         {
-            let p = this.controlPoints[i].dup();
-
-            p = p.multiply(bernstein(3, i, u))
-
-            ret.elements[0] += p.elements[0];
-            ret.elements[1] += p.elements[1];
-            ret.elements[2] += p.elements[2];
+            for (let j = 0; j < 4; ++j)
+            {
+                let p = this.controlPoints[i * 4 + j].dup();
+    
+                p = p.multiply(bernstein(3, i, u) * bernstein(3, j, v));
+    
+                ret.elements[0] += p.elements[0];
+                ret.elements[1] += p.elements[1];
+                ret.elements[2] += p.elements[2];
+            }
         }
     
         return ret;
     }
 
-    const bezierAlongLine = function bezierAlongLine(u, v) {
-        const vec = this.controlPoints[4].subtract(this.controlPoints[0]).multiply(v);
+    const coefficientMatrix = s.$M([
+        [-0.5, 2 * 0.5, -0.5, 0],
+        [2 - 0.5, 0.5 - 3, 0, 1],
+        [0.5 - 2, 3 - (2 * 0.5), 0.5, 0],
+        [0.5, -0.5, 0, 0]
+    ]);
 
-        let ret = s.$V([0, 0, 0, 1]);
+    const transposedCoefficientMatrix = coefficientMatrix.transpose();
 
-        for (let i = 0; i < 4; ++i) {
-            const p = vec.add(this.controlPoints[i]).multiply(bernstein(3, i, u));
-
-            ret.elements[0] += p.elements[0];
-            ret.elements[1] += p.elements[1];
-            ret.elements[2] += p.elements[2];
-        }
-
-        return ret;
-    };
-
-    const BezierMesh = {
-        BezierMesh(controlPoints) {
+    const CatmullRomSplineMesh = {
+        CatmullRomSplineMesh(controlPoints) {
             this.controlPoints = controlPoints;
 
             this.visibilityTransformationChain = Object.create(TransformationChain);
@@ -104,13 +100,33 @@ define(['js/sylvester', 'js/style', 'js/util', 'js/transformation-chain'], funct
     
                     this.faces.push(makeFace([a, d, c], [0, 0, 0], s.$V([0.71, 0.28, 0.15]), s.$V([0.27, 0.53, 0.4])));
                     this.faces.push(makeFace([a, b, d], [0, 0, 0], s.$V([0.55, 0.15, 0]), s.$V([1, 0.94, 0.64])));
+
+                    this.geometryMatrices = [];
                 }
             }
 
             for (let i = 0; i < verticesPerLine * verticesPerLine; ++i)
             {
                 this.transformedVertices.push(s.$V([0, 0, 0, 1]));
-                // normals.push_back({ { 0, 0, 0 }, 0 });
+            }
+        },
+        setupGeometryMatrices() {
+            this.geometryMatrices = [];
+
+            for (let i = 0; i < 3; ++i) {
+                const g = [];                
+                
+                for (let j = 0; j < 4; ++j) {
+                    const row = [];
+
+                    for (let k = 0; k < 4; ++k) {
+                        row.push(this.controlPoints[j * 4 + k].elements[i]);
+                    }
+
+                    g.push(row);
+                }
+
+                this.geometryMatrices.push(s.$M(g));
             }
         },
         update(centerVec) {
@@ -121,13 +137,33 @@ define(['js/sylvester', 'js/style', 'js/util', 'js/transformation-chain'], funct
 
             this.vertices = [];
 
+            this.setupGeometryMatrices();
+
+            const gm = [];
+
+            for (let i = 0; i < 3; ++i) {
+                gm.push(transposedCoefficientMatrix.multiply(this.geometryMatrices[i]).multiply(coefficientMatrix));
+            }
+
             for (let u = 0; u <= 1.01; u += 0.05)
             {
+                const sMat = s.$M([
+                    [ u * u * u, u * u, u, 1 ]
+                ]);
+
                 for (let v = 0; v <= 1.01; v += 0.05)
                 {
-                    const p = bezierAlongLine.call(this, u, v);
-        
-                    this.vertices.push(p);
+                    const vVec = s.$V([
+                        v * v * v, v * v, v, 1
+                    ]);
+
+                    const p = [0, 0, 0, 1];
+
+                    for (let i = 0; i < 3; ++i) {
+                        p[i] = sMat.multiply(gm[i]).multiply(vVec).elements[0];
+                    }
+                    
+                    this.vertices.push(s.$V(p));
                 }
             }
         
@@ -176,5 +212,5 @@ define(['js/sylvester', 'js/style', 'js/util', 'js/transformation-chain'], funct
         },
     };
 
-    return BezierMesh;
+    return CatmullRomSplineMesh;
 });

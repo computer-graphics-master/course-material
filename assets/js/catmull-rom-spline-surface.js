@@ -1,0 +1,1 @@
+define(['js/sylvester','js/cubic-spline-patch','js/cubic-spline-patch-mesh'],function(a,b,c){'use strict';const d=a.$M([[-0.5,1,-0.5,0],[1.5,-2.5,0,1],[-1.5,2,0.5,0],[0.5,-0.5,0,0]]);return function(a,e){const f=Object.create(c);f.CubicSplinePatchMesh(d);const g=Object.create(b);g.CubicSplinePatch(a,e,f),g.start(!1)}});
