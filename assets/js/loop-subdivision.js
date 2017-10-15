@@ -1,0 +1,1 @@
+define(['js/subdivision-surface','js/loop-subdivision-mesh'],function(a,b){'use strict';return function(c,d){const e=Object.create(b);e.LoopSubdivisionMesh();const f=Object.create(a);f.SubdivisionSurface(c,d,e),f.start(!1)}});

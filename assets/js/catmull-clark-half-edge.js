@@ -1,0 +1,1 @@
+define([],function(){const a={getNextHalfEdge(a){return 3==a%4?a-3:a+1},getStartVertex(a){return a%4},getEndVertex(a){return(a+1)%4}};return{HalfEdge:a}});
